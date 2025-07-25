@@ -1,12 +1,12 @@
 package com.blxckbxll24.talkingchildrenwearos.data.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import android.content.Context
-import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
 import com.blxckbxll24.talkingchildrenwearos.domain.model.ActivityData
+import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
 import com.blxckbxll24.talkingchildrenwearos.domain.model.SensorData
 
 @Database(
@@ -31,9 +31,7 @@ abstract class TalkingChildrenDatabase : RoomDatabase() {
                     context.applicationContext,
                     TalkingChildrenDatabase::class.java,
                     "talking_children_database"
-                )
-                    .fallbackToDestructiveMigration()
-                    .build()
+                ).build()
                 INSTANCE = instance
                 instance
             }

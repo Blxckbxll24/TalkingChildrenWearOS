@@ -1,215 +1,124 @@
 package com.blxckbxll24.talkingchildrenwearos.presentation.composable
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.navigation.NavController
 import androidx.wear.compose.material.*
-import com.blxckbxll24.talkingchildrenwearos.R
-import com.blxckbxll24.talkingchildrenwearos.presentation.theme.WearColors
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.CircularProgressIndicator
+import androidx.wear.compose.material.Text
+import com.blxckbxll24.talkingchildrenwearos.presentation.viewmodel.HeartRateViewModel
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HeartRateScreen(
-    navController: NavHostController,
-    hasPermission: Boolean,
-    onRequestPermission: () -> Unit
+    navController: NavController,
+    viewModel: HeartRateViewModel
 ) {
-    var heartRate by remember { mutableIntStateOf(0) }
-    var isMeasuring by remember { mutableStateOf(false) }
-    var isAvailable by remember { mutableStateOf(hasPermission) }
-    
-    LaunchedEffect(hasPermission) {
-        isAvailable = hasPermission
-    }
-    
-    ScalingLazyColumn(
+    val heartRateState by viewModel.heartRateState.collectAsState()
+    val isMonitoring by viewModel.isMonitoring.collectAsState()
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        item {
+        
+        Text(
+            text = "Heart Rate",
+            style = MaterialTheme.typography.title3,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        if (isMonitoring) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(60.dp),
+                strokeWidth = 4.dp
+            )
+        } else {
             Text(
-                text = stringResource(R.string.heart_rate_title),
-                style = MaterialTheme.typography.title2,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = "${heartRateState.currentHeartRate}",
+                style = MaterialTheme.typography.display1,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            
+            Text(
+                text = "BPM",
+                style = MaterialTheme.typography.body1,
+                textAlign = TextAlign.Center
             )
         }
         
-        if (!isAvailable) {
-            item {
-                PermissionRequiredCard(
-                    title = stringResource(R.string.permission_heart_rate),
-                    onRequestPermission = onRequestPermission
-                )
-            }
-        } else {
-            item {
-                HeartRateDisplay(
-                    heartRate = heartRate,
-                    isMeasuring = isMeasuring
-                )
-            }
-            
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            
-            item {
-                Button(
-                    onClick = {
-                        isMeasuring = !isMeasuring
-                        if (isMeasuring) {
-                            // Simulate heart rate measurement
-                            heartRate = (60..100).random()
-                        }
-                    },
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                ) {
-                    Text(
-                        text = if (isMeasuring) "Stop" else "Start",
-                        style = MaterialTheme.typography.button
-                    )
-                }
-            }
-            
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            
-            item {
-                HeartRateHistory()
-            }
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        heartRateState.lastMeasurement?.let { lastTime ->
+            Text(
+                text = "Last: ${lastTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                style = MaterialTheme.typography.caption1,
+                textAlign = TextAlign.Center
+            )
         }
-    }
-}
-
-@Composable
-fun HeartRateDisplay(
-    heartRate: Int,
-    isMeasuring: Boolean
-) {
-    Card(
-        modifier = Modifier
-            .size(120.dp)
-            .clip(CircleShape)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (isMeasuring && heartRate == 0) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(40.dp),
-                        color = WearColors.HeartRateNormal
-                    )
-                    Text(
-                        text = stringResource(R.string.heart_rate_measuring),
-                        style = MaterialTheme.typography.caption1,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                } else if (heartRate > 0) {
-                    Text(
-                        text = "$heartRate",
-                        style = MaterialTheme.typography.display1,
-                        color = getHeartRateColor(heartRate)
-                    )
-                    Text(
-                        text = "BPM",
-                        style = MaterialTheme.typography.caption1,
-                        color = getHeartRateColor(heartRate)
-                    )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Button(
+            onClick = { // Agregar onClick faltante
+                if (isMonitoring) {
+                    viewModel.stopMonitoring()
                 } else {
-                    Text(
-                        text = "❤️",
-                        style = MaterialTheme.typography.display1
-                    )
-                    Text(
-                        text = "Tap Start",
-                        style = MaterialTheme.typography.caption1,
-                        textAlign = TextAlign.Center
-                    )
+                    viewModel.startMonitoring()
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun HeartRateHistory() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Recent Readings",
-                style = MaterialTheme.typography.body1,
-                modifier = Modifier.padding(bottom = 8.dp)
+                text = if (isMonitoring) "Stop" else "Start",
+                textAlign = TextAlign.Center
             )
-            
-            // Placeholder for recent readings
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = if (heartRateState.isConnected) "Connected" else "Disconnected",
+            style = MaterialTheme.typography.caption1,
+            color = if (heartRateState.isConnected) Color.Green else Color.Red, // Cambiar 'color' por parámetro válido
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = { // Agregar onClick faltante
+                viewModel.simulateHeartRate()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
-                text = "No recent readings",
+                text = "Simulate",
+                textAlign = TextAlign.Center
+            )
+        }
+        
+        heartRateState.error?.let { error ->
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = error,
                 style = MaterialTheme.typography.caption1,
+                color = Color.Red,
                 textAlign = TextAlign.Center
             )
         }
     }
-}
-
-@Composable
-fun PermissionRequiredCard(
-    title: String,
-    onRequestPermission: () -> Unit
-) {
-    Card(
-        onClick = onRequestPermission,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.body1,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            Text(
-                text = stringResource(R.string.grant_permission),
-                style = MaterialTheme.typography.caption1,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-private fun getHeartRateColor(heartRate: Int) = when {
-    heartRate < 60 || heartRate > 140 -> WearColors.HeartRateHigh
-    heartRate > 100 -> WearColors.HeartRateElevated
-    else -> WearColors.HeartRateNormal
 }

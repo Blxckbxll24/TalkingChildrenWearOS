@@ -1,45 +1,28 @@
 package com.blxckbxll24.talkingchildrenwearos.domain.usecase
 
-import com.blxckbxll24.talkingchildrenwearos.data.repository.HealthDataRepository
+import com.blxckbxll24.talkingchildrenwearos.data.database.HeartRateDao
 import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 class MonitorHeartRateUseCase(
-    private val healthDataRepository: HealthDataRepository
+    private val heartRateDao: HeartRateDao
 ) {
-    
-    suspend fun recordHeartRate(heartRate: Int, isManual: Boolean = false): Result<Unit> {
-        return try {
-            val heartRateData = HeartRateData(
-                heartRate = heartRate,
-                timestamp = LocalDateTime.now(),
-                isManualMeasurement = isManual
-            )
-            healthDataRepository.insertHeartRate(heartRateData)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun recordHeartRate(heartRate: Int) {
+        val heartRateData = HeartRateData(
+            heartRate = heartRate,
+            timestamp = LocalDateTime.now(),
+            accuracy = 1, // Agregar parámetro accuracy faltante
+            isManualMeasurement = false
+        )
+        heartRateDao.insert(heartRateData)
     }
     
     fun getHeartRateHistory(): Flow<List<HeartRateData>> {
-        return healthDataRepository.getAllHeartRateData()
+        return heartRateDao.getAllHeartRateData()
     }
     
-    suspend fun getLatestHeartRate(): HeartRateData? {
-        return healthDataRepository.getLatestHeartRate()
-    }
-    
-    fun isHeartRateAbnormal(heartRate: Int, ageGroup: AgeGroup = AgeGroup.CHILD): Boolean {
-        return when (ageGroup) {
-            AgeGroup.CHILD -> heartRate < 70 || heartRate > 130
-            AgeGroup.TEEN -> heartRate < 60 || heartRate > 120
-            AgeGroup.ADULT -> heartRate < 60 || heartRate > 100
-        }
-    }
-    
-    enum class AgeGroup {
-        CHILD, TEEN, ADULT
+    fun getRecentHeartRate(): Flow<HeartRateData?> {
+        return heartRateDao.getLatestHeartRateData()
     }
 }

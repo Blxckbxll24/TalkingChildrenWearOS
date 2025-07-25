@@ -1,210 +1,94 @@
 package com.blxckbxll24.talkingchildrenwearos.presentation.composable
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.*
-import com.blxckbxll24.talkingchildrenwearos.R
 
 @Composable
-fun SettingsScreen(
-    navController: NavHostController
-) {
-    var enableNotifications by remember { mutableStateOf(true) }
-    var autoHeartRate by remember { mutableStateOf(false) }
-    var syncCompanion by remember { mutableStateOf(true) }
+fun SettingsScreen() {
+    var notificationsEnabled by remember { mutableStateOf(true) }
+    var autoSyncEnabled by remember { mutableStateOf(false) }
     
-    ScalingLazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item {
-            Text(
-                text = stringResource(R.string.settings_title),
-                style = MaterialTheme.typography.title2,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
+        Text(
+            text = "Configuración",
+            style = MaterialTheme.typography.title1
+        )
         
-        item {
-            SettingsToggleCard(
-                title = stringResource(R.string.enable_notifications),
-                description = "Get alerts for health data",
-                checked = enableNotifications,
-                onCheckedChange = { enableNotifications = it }
-            )
-        }
-        
-        item {
-            SettingsToggleCard(
-                title = stringResource(R.string.auto_heart_rate),
-                description = "Automatic heart rate monitoring",
-                checked = autoHeartRate,
-                onCheckedChange = { autoHeartRate = it }
-            )
-        }
-        
-        item {
-            SettingsToggleCard(
-                title = stringResource(R.string.sync_companion),
-                description = "Sync data with phone app",
-                checked = syncCompanion,
-                onCheckedChange = { syncCompanion = it }
-            )
-        }
-        
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        
-        item {
-            SettingsActionCard(
-                title = "Heart Rate Thresholds",
-                description = "Set high/low HR alerts",
-                onClick = { /* Navigate to threshold settings */ }
-            )
-        }
-        
-        item {
-            SettingsActionCard(
-                title = "Daily Step Goal",
-                description = "Current: 10,000 steps",
-                onClick = { /* Navigate to goal settings */ }
-            )
-        }
-        
-        item {
-            SettingsActionCard(
-                title = "Data Management",
-                description = "Export or clear data",
-                onClick = { /* Navigate to data management */ }
-            )
-        }
-        
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        
-        item {
-            AboutCard()
-        }
-    }
-}
-
-@Composable
-fun SettingsToggleCard(
-    title: String,
-    description: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Notifications Toggle
+        Card(
+            onClick = { },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.body1
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.caption1,
-                    modifier = Modifier.padding(top = 2.dp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Notificaciones", style = MaterialTheme.typography.body1)
+                }
+                Switch(
+                    checked = notificationsEnabled,
+                    onCheckedChange = { notificationsEnabled = it }
                 )
             }
-            
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier.padding(start = 8.dp)
-            )
         }
-    }
-}
-
-@Composable
-fun SettingsActionCard(
-    title: String,
-    description: String,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        
+        // Auto Sync Toggle
+        Card(
+            onClick = { },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.body1
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.caption1,
-                modifier = Modifier.padding(top = 2.dp)
-            )
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Sync, contentDescription = "Sincronización")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Auto Sync", style = MaterialTheme.typography.body1)
+                }
+                Switch(
+                    checked = autoSyncEnabled,
+                    onCheckedChange = { autoSyncEnabled = it }
+                )
+            }
         }
-    }
-}
-
-@Composable
-fun AboutCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        
+        // About
+        Card(
+            onClick = { },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(R.string.about),
-                style = MaterialTheme.typography.body1,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            Text(
-                text = "Talking Children Wear OS",
-                style = MaterialTheme.typography.caption1,
-                textAlign = TextAlign.Center
-            )
-            
-            Text(
-                text = "Version 1.0",
-                style = MaterialTheme.typography.caption1,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "A comprehensive health and activity tracker for Wear OS",
-                style = MaterialTheme.typography.caption1,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Info, contentDescription = "Acerca de")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Acerca de", style = MaterialTheme.typography.body1)
+                }
+                Text(
+                    text = "Versión 1.0.0",
+                    style = MaterialTheme.typography.caption1,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
     }
 }

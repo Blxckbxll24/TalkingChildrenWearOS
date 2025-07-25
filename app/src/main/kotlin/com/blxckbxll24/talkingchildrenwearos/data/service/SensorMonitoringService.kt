@@ -7,23 +7,15 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.IBinder
-import android.util.Log
-import androidx.health.services.client.HealthServices
-import androidx.health.services.client.data.DataTypeAvailability
-import androidx.health.services.client.data.DataTypes
-import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
 import com.blxckbxll24.talkingchildrenwearos.domain.model.ActivityData
+import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
 import com.blxckbxll24.talkingchildrenwearos.domain.model.SensorData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import java.time.LocalDateTime
 
 class SensorMonitoringService : Service(), SensorEventListener {
     
-    private val serviceScope = CoroutineScope(Dispatchers.IO + Job())
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var sensorManager: SensorManager
     private var heartRateSensor: Sensor? = null
     private var accelerometerSensor: Sensor? = null
@@ -35,7 +27,6 @@ class SensorMonitoringService : Service(), SensorEventListener {
     
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "SensorMonitoringService created")
         
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         
@@ -43,9 +34,6 @@ class SensorMonitoringService : Service(), SensorEventListener {
         heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        
-        // Check Health Services availability
-        checkHealthServicesAvailability()
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -59,25 +47,9 @@ class SensorMonitoringService : Service(), SensorEventListener {
     
     override fun onBind(intent: Intent?): IBinder? = null
     
-    private fun checkHealthServicesAvailability() {
-        serviceScope.launch {
-            try {
-                val healthClient = HealthServices.getClient(this@SensorMonitoringService)
-                val dataClient = healthClient.dataClient
-                
-                // Check heart rate availability
-                val heartRateAvailability = dataClient.getCapabilities()
-                Log.d(TAG, "Health Services capabilities checked")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error checking Health Services availability", e)
-            }
-        }
-    }
-    
     private fun startMonitoring() {
         if (isMonitoring) return
         
-        Log.d(TAG, "Starting sensor monitoring")
         isMonitoring = true
         
         // Register sensor listeners
@@ -100,7 +72,6 @@ class SensorMonitoringService : Service(), SensorEventListener {
     private fun stopMonitoring() {
         if (!isMonitoring) return
         
-        Log.d(TAG, "Stopping sensor monitoring")
         isMonitoring = false
         
         sensorManager.unregisterListener(this)
@@ -109,7 +80,6 @@ class SensorMonitoringService : Service(), SensorEventListener {
     private fun measureHeartRate() {
         serviceScope.launch {
             heartRateSensor?.let { sensor ->
-                Log.d(TAG, "Starting heart rate measurement")
                 // Trigger a manual heart rate measurement
                 sensorManager.registerListener(this@SensorMonitoringService, sensor, SensorManager.SENSOR_DELAY_FASTEST)
                 
@@ -132,11 +102,11 @@ class SensorMonitoringService : Service(), SensorEventListener {
                         steps = currentSteps,
                         distance = currentSteps * 0.0008f, // Rough calculation: 1 step ≈ 0.8 meters
                         calories = (currentSteps * 0.04f).toInt(), // Rough calculation: 1 step ≈ 0.04 calories
-                        timestamp = LocalDateTime.now()
+                        timestamp = LocalDateTime.now(),
+                        activityType = "walking"
                     )
                     
                     // Here we would save to database if repository was injected
-                    Log.d(TAG, "Activity data collected: $currentSteps steps")
                     lastStepCount = stepCount
                 }
                 
@@ -149,49 +119,56 @@ class SensorMonitoringService : Service(), SensorEventListener {
         event?.let { sensorEvent ->
             when (sensorEvent.sensor.type) {
                 Sensor.TYPE_HEART_RATE -> {
-                    val heartRate = sensorEvent.values[0].toInt()
-                    if (heartRate > 0) {
-                        serviceScope.launch {
-                            val heartRateData = HeartRateData(
-                                heartRate = heartRate,
-                                timestamp = LocalDateTime.now(),
-                                accuracy = sensorEvent.accuracy.toFloat()
-                            )
-                            // Here we would save to database if repository was injected
-                            Log.d(TAG, "Heart rate recorded: $heartRate BPM")
-                        }
-                    }
+                    handleHeartRateData(sensorEvent.values[0])
                 }
-                
                 Sensor.TYPE_STEP_COUNTER -> {
-                    stepCount = sensorEvent.values[0].toInt()
-                    Log.d(TAG, "Step count: $stepCount")
+                    handleStepData(sensorEvent.values[0].toInt())
                 }
-                
-                Sensor.TYPE_ACCELEROMETER -> {
-                    serviceScope.launch {
-                        val sensorData = SensorData(
-                            sensorType = "accelerometer",
-                            values = "[${sensorEvent.values.joinToString(",")}]",
-                            timestamp = LocalDateTime.now(),
-                            accuracy = sensorEvent.accuracy
-                        )
-                        // Here we would save to database if repository was injected
-                        Log.d(TAG, "Accelerometer data collected")
-                    }
+                else -> {
+                    handleOtherSensorData(sensorEvent)
                 }
             }
         }
     }
     
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.d(TAG, "Sensor accuracy changed: ${sensor?.name} - $accuracy")
+        // Handle accuracy changes
+    }
+    
+    private fun handleHeartRateData(heartRate: Float) {
+        val heartRateData = HeartRateData(
+            heartRate = heartRate.toInt(),
+            timestamp = LocalDateTime.now(),
+            accuracy = 1
+        )
+        // TODO: Save to database
+    }
+    
+    private fun handleStepData(steps: Int) {
+        val activityData = ActivityData(
+            steps = steps,
+            distance = 0f,
+            calories = 0,
+            timestamp = LocalDateTime.now(),
+            activityType = "walking"
+        )
+        // TODO: Save to database
+    }
+    
+    private fun handleOtherSensorData(event: SensorEvent) {
+        val sensorData = SensorData(
+            sensorType = event.sensor.name,
+            values = event.values.joinToString(","),
+            timestamp = LocalDateTime.now(),
+            accuracy = event.accuracy
+        )
+        // TODO: Save to database
     }
     
     override fun onDestroy() {
         super.onDestroy()
         stopMonitoring()
-        Log.d(TAG, "SensorMonitoringService destroyed")
+        serviceScope.cancel()
     }
     
     companion object {

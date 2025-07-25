@@ -3,18 +3,19 @@ package com.blxckbxll24.talkingchildrenwearos.presentation
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.TimeText
 import com.blxckbxll24.talkingchildrenwearos.presentation.composable.WearAppNavigation
 import com.blxckbxll24.talkingchildrenwearos.presentation.theme.TalkingChildrenWearOSTheme
 
@@ -22,33 +23,29 @@ class MainActivity : ComponentActivity() {
     
     private var hasHeartRatePermission by mutableStateOf(false)
     private var hasActivityPermission by mutableStateOf(false)
-    private var hasBodySensorsPermission by mutableStateOf(false)
     
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         hasHeartRatePermission = permissions[Manifest.permission.BODY_SENSORS] == true
         hasActivityPermission = permissions[Manifest.permission.ACTIVITY_RECOGNITION] == true
-        hasBodySensorsPermission = permissions[Manifest.permission.BODY_SENSORS] == true
-        
-        Log.d(TAG, "Permissions granted: HR=$hasHeartRatePermission, Activity=$hasActivityPermission, BodySensors=$hasBodySensorsPermission")
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         
+        // Check initial permissions
         checkPermissions()
-        requestPermissionsIfNeeded()
+        
+        setTheme(android.R.style.Theme_DeviceDefault)
         
         setContent {
-            TalkingChildrenWearOSTheme {
-                WearAppNavigation(
-                    modifier = Modifier.fillMaxSize(),
-                    hasHeartRatePermission = hasHeartRatePermission,
-                    hasActivityPermission = hasActivityPermission,
-                    onRequestPermissions = { requestPermissionsIfNeeded() }
-                )
-            }
+            WearApp(
+                hasHeartRatePermission = hasHeartRatePermission,
+                hasActivityPermission = hasActivityPermission,
+                onRequestPermissions = ::requestPermissions
+            )
         }
     }
     
@@ -60,33 +57,36 @@ class MainActivity : ComponentActivity() {
         hasActivityPermission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.ACTIVITY_RECOGNITION
         ) == PackageManager.PERMISSION_GRANTED
-        
-        hasBodySensorsPermission = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.BODY_SENSORS
-        ) == PackageManager.PERMISSION_GRANTED
     }
     
-    private fun requestPermissionsIfNeeded() {
-        val permissionsToRequest = mutableListOf<String>()
-        
-        if (!hasHeartRatePermission) {
-            permissionsToRequest.add(Manifest.permission.BODY_SENSORS)
-        }
-        
-        if (!hasActivityPermission) {
-            permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
-        }
-        
-        if (!hasBodySensorsPermission) {
-            permissionsToRequest.add(Manifest.permission.BODY_SENSORS)
-        }
-        
-        if (permissionsToRequest.isNotEmpty()) {
-            permissionLauncher.launch(permissionsToRequest.toTypedArray())
-        }
+    private fun requestPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.BODY_SENSORS,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        )
+        permissionLauncher.launch(permissions)
     }
-    
-    companion object {
-        private const val TAG = "MainActivity"
+}
+
+@Composable
+fun WearApp(
+    hasHeartRatePermission: Boolean,
+    hasActivityPermission: Boolean,
+    onRequestPermissions: () -> Unit
+) {
+    TalkingChildrenWearOSTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+            contentAlignment = Alignment.Center
+        ) {
+            TimeText()
+            WearAppNavigation(
+                hasHeartRatePermission = hasHeartRatePermission,
+                hasActivityPermission = hasActivityPermission,
+                onRequestPermissions = onRequestPermissions
+            )
+        }
     }
 }

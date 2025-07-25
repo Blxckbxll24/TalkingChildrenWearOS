@@ -3,62 +3,89 @@ package com.blxckbxll24.talkingchildrenwearos.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.blxckbxll24.talkingchildrenwearos.domain.model.HeartRateData
-import com.blxckbxll24.talkingchildrenwearos.domain.model.SensorStatus
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.blxckbxll24.talkingchildrenwearos.domain.usecase.MonitorHeartRateUseCase
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
-class HeartRateViewModel : ViewModel() {
-    
-    private val _currentHeartRate = MutableStateFlow(0)
-    val currentHeartRate: StateFlow<Int> = _currentHeartRate.asStateFlow()
-    
+class HeartRateViewModel(
+    private val monitorHeartRateUseCase: MonitorHeartRateUseCase
+) : ViewModel() {
+
+    private val _heartRateState = MutableStateFlow(HeartRateState())
+    val heartRateState: StateFlow<HeartRateState> = _heartRateState.asStateFlow()
+
     private val _isMonitoring = MutableStateFlow(false)
     val isMonitoring: StateFlow<Boolean> = _isMonitoring.asStateFlow()
-    
-    private val _sensorStatus = MutableStateFlow<SensorStatus>(SensorStatus.Available)
-    val sensorStatus: StateFlow<SensorStatus> = _sensorStatus.asStateFlow()
-    
-    private val _heartRateHistory = MutableStateFlow<List<HeartRateData>>(emptyList())
-    val heartRateHistory: StateFlow<List<HeartRateData>> = _heartRateHistory.asStateFlow()
-    
-    fun startHeartRateMonitoring() {
+
+    init {
+        observeHeartRateData()
+    }
+
+    private fun observeHeartRateData() {
         viewModelScope.launch {
-            _isMonitoring.value = true
-            _sensorStatus.value = SensorStatus.Measuring
-            // Here we would start the actual sensor monitoring
-            // For demo purposes, we'll simulate heart rate data
-            simulateHeartRateMeasurement()
+            monitorHeartRateUseCase.getRecentHeartRate()
+                .collect { heartRateData ->
+                    _heartRateState.value = _heartRateState.value.copy(
+                        currentHeartRate = heartRateData?.heartRate ?: 0,
+                        lastMeasurement = heartRateData?.timestamp
+                    )
+                }
         }
     }
-    
-    fun stopHeartRateMonitoring() {
-        viewModelScope.launch {
-            _isMonitoring.value = false
-            _sensorStatus.value = SensorStatus.Available
-        }
+
+    fun startMonitoring() {
+        _isMonitoring.value = true
+        // Aquí iría la lógica para iniciar el sensor de frecuencia cardíaca
     }
-    
-    private suspend fun simulateHeartRateMeasurement() {
-        // Simulate heart rate measurement
-        kotlinx.coroutines.delay(2000)
-        if (_isMonitoring.value) {
-            val heartRate = (60..100).random()
-            _currentHeartRate.value = heartRate
-        }
+
+    fun stopMonitoring() {
+        _isMonitoring.value = false
+        // Aquí iría la lógica para detener el sensor
     }
-    
-    fun loadHeartRateHistory() {
+
+    fun recordManualHeartRate(heartRate: Int) {
         viewModelScope.launch {
-            // Here we would load from repository
-            // For now, simulate some data
-            val sampleData = listOf(
-                HeartRateData(1, 72, java.time.LocalDateTime.now().minusHours(1)),
-                HeartRateData(2, 68, java.time.LocalDateTime.now().minusHours(2)),
-                HeartRateData(3, 75, java.time.LocalDateTime.now().minusHours(3))
+            val heartRateData = HeartRateData(
+                heartRate = heartRate,
+                timestamp = LocalDateTime.now(),
+                accuracy = 1, // Agregar accuracy
+                isManualMeasurement = true
             )
-            _heartRateHistory.value = sampleData
+            // Aquí llamarías al use case para guardar los datos
+        }
+    }
+
+    fun simulateHeartRate() {
+        viewModelScope.launch {
+            val simulatedHR = (60..100).random()
+            val heartRateData = HeartRateData(
+                heartRate = simulatedHR,
+                timestamp = LocalDateTime.now(),
+                accuracy = 1, // Agregar accuracy
+                isManualMeasurement = false
+            )
+            // Aquí llamarías al use case para guardar los datos
+        }
+    }
+
+    fun generateDemoData() {
+        viewModelScope.launch {
+            val demoHR = (70..90).random()
+            val heartRateData = HeartRateData(
+                heartRate = demoHR,
+                timestamp = LocalDateTime.now(),
+                accuracy = 1, // Agregar accuracy
+                isManualMeasurement = false
+            )
+            // Aquí llamarías al use case para guardar los datos
         }
     }
 }
+
+data class HeartRateState(
+    val currentHeartRate: Int = 0,
+    val lastMeasurement: LocalDateTime? = null,
+    val isConnected: Boolean = false,
+    val error: String? = null
+)
