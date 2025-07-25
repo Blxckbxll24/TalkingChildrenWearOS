@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkingChildren</string>
+    <string name="messages_title">Mensajes</string>
+    <string name="recorder_title">Grabador</string>
+    
+    <!-- Categories -->
+    <string name="category_basic">Básico</string>
+    <string name="category_emotions">Emociones</string>
+    <string name="category_needs">Necesidades</string>
+    
+    <!-- Actions -->
+    <string name="record_new">Grabar nuevo mensaje</string>
+    <string name="play">Reproducir</string>
+    <string name="record">Grabar</string>
+    <string name="stop">Parar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    
+    <!-- Messages -->
+    <string name="recording">Grabando...</string>
+    <string name="playing">Reproduciendo...</string>
+    <string name="permission_required">Se requiere permiso de micrófono</string>
+    <string name="no_audio_file">No se encontró archivo de audio</string>
+    <string name="audio_saved">Audio guardado</string>
+    
+    <!-- Predefined messages - Basic -->
+    <string name="msg_basic_1">Hola, buenos días</string>
+    <string name="msg_basic_2">Necesito ayuda</string>
+    <string name="msg_basic_3">Muchas gracias</string>
+    
+    <!-- Predefined messages - Emotions -->
+    <string name="msg_emotion_1">Me siento feliz</string>
+    <string name="msg_emotion_2">Necesito apoyo</string>
+    <string name="msg_emotion_3">Estoy agradecido</string>
+    
+    <!-- Predefined messages - Needs -->
+    <string name="msg_need_1">Necesito ir al baño</string>
+    <string name="msg_need_2">Tengo hambre</string>
+    <string name="msg_need_3">Tengo sed</string>
+</resources>
