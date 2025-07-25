@@ -9,8 +9,8 @@ data class HeartRateData(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val heartRate: Int,
-    val timestamp: LocalDateTime = LocalDateTime.now(),
-    val accuracy: Float = 1.0f,
+    val timestamp: LocalDateTime,
+    val accuracy: Int,
     val isManualMeasurement: Boolean = false
 )
 
@@ -19,10 +19,10 @@ data class ActivityData(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val steps: Int,
-    val distance: Float, // in kilometers
+    val distance: Float,
     val calories: Int,
-    val timestamp: LocalDateTime = LocalDateTime.now(),
-    val activityType: String = "walking"
+    val timestamp: LocalDateTime,
+    val activityType: String
 )
 
 @Entity(tableName = "sensor_data")
@@ -30,8 +30,8 @@ data class SensorData(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val sensorType: String,
-    val values: String, // JSON string of sensor values
-    val timestamp: LocalDateTime = LocalDateTime.now(),
+    val values: String,
+    val timestamp: LocalDateTime,
     val accuracy: Int
 )
 
