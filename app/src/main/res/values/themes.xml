@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme for Wear OS -->
+    <style name="Theme.TalkingChildrenWearOS" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:colorPrimary">@color/primary_color</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark_color</item>
+        <item name="android:colorAccent">@color/accent_color</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="android:textColorPrimary">@color/text_primary_color</item>
+        <item name="android:textColorSecondary">@color/text_secondary_color</item>
+    </style>
+
+    <!-- Circular layout specific theme -->
+    <style name="Theme.TalkingChildrenWearOS.Circular" parent="Theme.TalkingChildrenWearOS">
+        <!-- Circular screen specific styling -->
+    </style>
+
+    <!-- Square layout specific theme -->
+    <style name="Theme.TalkingChildrenWearOS.Square" parent="Theme.TalkingChildrenWearOS">
+        <!-- Square screen specific styling -->
+    </style>
+    
+    <!-- Button styles -->
+    <style name="WearButton" parent="@android:style/Widget.Material.Button">
+        <item name="android:textColor">@color/button_text_color</item>
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">48dp</item>
+    </style>
+    
+    <!-- Text styles -->
+    <style name="WearTextTitle" parent="@android:style/TextAppearance.Material.Title">
+        <item name="android:textColor">@color/text_primary_color</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    
+    <style name="WearTextBody" parent="@android:style/TextAppearance.Material.Body1">
+        <item name="android:textColor">@color/text_secondary_color</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    
+    <style name="WearTextCaption" parent="@android:style/TextAppearance.Material.Caption">
+        <item name="android:textColor">@color/text_secondary_color</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">Talking Children</string>
+    <string name="tile_label">Children Tracker</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_heart_rate">Heart Rate</string>
+    <string name="nav_activity">Activity</string>
+    <string name="nav_settings">Settings</string>
+    
+    <!-- Home Screen -->
+    <string name="welcome_message">Welcome to Talking Children</string>
+    <string name="current_time">Current Time</string>
+    <string name="steps_today">Steps Today</string>
+    <string name="heart_rate_current">Heart Rate</string>
+    
+    <!-- Heart Rate -->
+    <string name="heart_rate_title">Heart Rate Monitor</string>
+    <string name="heart_rate_bpm">%d BPM</string>
+    <string name="heart_rate_measuring">Measuring...</string>
+    <string name="heart_rate_unavailable">Heart rate sensor unavailable</string>
+    <string name="start_measurement">Start Measurement</string>
+    <string name="stop_measurement">Stop Measurement</string>
+    
+    <!-- Activity -->
+    <string name="activity_title">Activity Tracker</string>
+    <string name="steps_count">Steps: %d</string>
+    <string name="distance_traveled">Distance: %.2f km</string>
+    <string name="calories_burned">Calories: %d kcal</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="auto_heart_rate">Auto Heart Rate</string>
+    <string name="sync_companion">Sync with Phone</string>
+    <string name="about">About</string>
+    
+    <!-- Permissions -->
+    <string name="permission_heart_rate">Heart rate permission required</string>
+    <string name="permission_activity">Activity recognition permission required</string>
+    <string name="permission_body_sensors">Body sensors permission required</string>
+    <string name="grant_permission">Grant Permission</string>
+    
+    <!-- Error Messages -->
+    <string name="error_sensor_not_available">Sensor not available</string>
+    <string name="error_connection_failed">Connection failed</string>
+    <string name="error_data_sync">Data synchronization failed</string>
+    
+    <!-- Complications -->
+    <string name="complication_heart_rate_short">HR</string>
+    <string name="complication_steps_short">Steps</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_sensors">Sensor Monitoring</string>
+    <string name="notification_channel_sync">Data Sync</string>
+    <string name="notification_heart_rate_high">Heart rate is high: %d BPM</string>
+    <string name="notification_daily_goal">Daily step goal reached!</string>
+</resources>
