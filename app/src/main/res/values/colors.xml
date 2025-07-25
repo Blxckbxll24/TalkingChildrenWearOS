@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary brand colors -->
+    <color name="primary_color">#2196F3</color>
+    <color name="primary_dark_color">#1976D2</color>
+    <color name="primary_light_color">#BBDEFB</color>
+    
+    <!-- Accent color -->
+    <color name="accent_color">#FF5722</color>
+    
+    <!-- Background colors -->
+    <color name="background_color">#000000</color>
+    <color name="surface_color">#121212</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary_color">#FFFFFF</color>
+    <color name="text_secondary_color">#CCCCCC</color>
+    <color name="text_disabled_color">#666666</color>
+    
+    <!-- Button colors -->
+    <color name="button_text_color">#FFFFFF</color>
+    <color name="button_background_color">#2196F3</color>
+    
+    <!-- Heart rate colors -->
+    <color name="heart_rate_normal">#4CAF50</color>
+    <color name="heart_rate_elevated">#FF9800</color>
+    <color name="heart_rate_high">#F44336</color>
+    
+    <!-- Activity colors -->
+    <color name="steps_color">#9C27B0</color>
+    <color name="distance_color">#00BCD4</color>
+    <color name="calories_color">#FF5722</color>
+    
+    <!-- Status colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="error_color">#F44336</color>
+    
+    <!-- Sensor indicator colors -->
+    <color name="sensor_active">#4CAF50</color>
+    <color name="sensor_inactive">#757575</color>
+    
+    <!-- Navigation colors -->
+    <color name="nav_selected">#2196F3</color>
+    <color name="nav_unselected">#666666</color>
+</resources>

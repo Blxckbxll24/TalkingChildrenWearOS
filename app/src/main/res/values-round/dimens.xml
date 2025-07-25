@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dimensions optimized for round screens -->
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="content_padding">20dp</dimen>
+    <dimen name="card_margin">12dp</dimen>
+    <dimen name="button_size">56dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="large_icon_size">48dp</dimen>
+    <dimen name="text_margin">8dp</dimen>
+    <dimen name="navigation_item_size">60dp</dimen>
+    <dimen name="heart_rate_display_size">120dp</dimen>
+</resources>
